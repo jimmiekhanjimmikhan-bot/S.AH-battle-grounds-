@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>S.AH BATTLE GROUNDS 🔥</title>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+    <style>
+        @keyframes fireMoving {
+            0% { border-color: #ff4500; box-shadow: 0 0 15px #ff4500; }
+            50% { border-color: #ffae00; box-shadow: 0 0 25px #ffae00; }
+            100% { border-color: #ff4500; box-shadow: 0 0 15px #ff4500; }
+        }
+        body { 
+            margin: 0; font-family: 'Segoe UI', sans-serif; background: #000; color: #fff; text-align: center; 
+            border: 5px solid #ff4500; animation: fireMoving 1.5s infinite ease-in-out;
+            min-height: 100vh; padding-bottom: 80px; box-sizing: border-box;
+        }
+        header { background: #000; border-bottom: 2px solid #ff4500; padding: 12px; position: sticky; top: 0; z-index: 1000; }
+        .header-top { display: flex; align-items: center; justify-content: center; position: relative; height: 40px; }
+        .back-btn { position: absolute; left: 0; background: none; border: none; color: #ff4500; font-size: 24px; cursor: pointer; display: none; font-weight: bold; }
+        .settings-btn { position: absolute; right: 0; background: none; border: none; color: white; font-size: 20px; cursor: pointer; }
+        h1 { color: #ff4500; text-shadow: 0 0 10px #ff4500; margin: 0; font-size: 18px; }
+        .menu { display: flex; justify-content: center; gap: 5px; flex-wrap: wrap; margin-top:8px; }
+        .menu button { background: transparent; color: #fff; border: 1.2px solid #ff4500; padding: 6px 10px; border-radius: 12px; font-size: 10px; font-weight: bold; cursor: pointer; }
+        .page { display: none; padding: 15px; width: 100%; box-sizing: border-box; }
+        .active { display: block !important; }
+        .rules-card { background: #111; border: 1.2px solid #ff4500; padding: 15px; border-radius: 12px; text-align: left; max-width: 360px; margin: auto; margin-bottom: 15px; }
+        .apply-btn { background: #ff4500; color: white; border: none; padding: 10px; border-radius: 6px; width: 100%; font-weight: bold; cursor: pointer; margin-top: 8px; }
+        .jazz-btn { background: #cc0000; color: white; padding: 10px; border-radius: 6px; border: none; font-weight: bold; flex: 1; cursor: pointer; }
+        .easy-btn { background: #37a832; color: white; padding: 10px; border-radius: 6px; border: none; font-weight: bold; flex: 1; cursor: pointer; }
+        input, select, textarea { width: 90%; padding: 12px; margin-bottom: 12px; background: #000; color: #fff; border: 1px solid #333; border-radius: 6px; display: block; margin: 10px auto; }
+        .hidden { display: none !important; }
+        .home-wallet { background: #1a1a1a; padding: 10px; border-radius: 10px; margin: 10px auto; max-width: 360px; border: 1px solid #333; display: flex; justify-content: space-between; align-items: center; }
+        .ss-warning { color: #ffcc00; font-size: 11px; text-align: center; display: block; margin-top: 5px; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="header-top">
+        <button id="backArrow" class="back-btn" onclick="showPage('home')">←</button>
+        <h1>S.AH BATTLE GROUNDS 🔥</h1>
+        <button id="setIco" class="settings-btn hidden" onclick="showPage('settingsPage')">⚙️</button>
+    </div>
+    <div class="menu">
+        <button onclick="showPage('home')">🏠 HOME</button>
+        <button onclick="showPage('plansPage')">💎 PLANS</button>
+        <button onclick="showPage('withdrawRatesPage')">💰 WITHDRAW</button>
+        <button id="profileBtn" class="hidden" onclick="showPage('profile')">👤 PROFILE</button>
+        <button id="loginBtn" onclick="showPage('login')">🔑 LOGIN</button>
+        <button id="regBtn" onclick="showPage('register')">📝 JOIN</button>
+    </div>
+</header>
+
+<div id="home" class="page active">
+    <div id="homeWallet" class="home-wallet hidden">
+        <div><span style="color:#aaa; font-size:11px;">Coins:</span><br><b style="color:#ffcc00; font-size:18px;">🪙 <span id="userCoinsHome">0</span></b></div>
+        <button onclick="showPage('depositPage')" style="background:#ffcc00; color:#000; border:none; padding:8px 15px; border-radius:8px; font-weight:bold; font-size:11px;">+ RECHARGE</button>
+    </div>
+    <div id="dynamicMatches">Loading Matches...</div>
+</div>
+
+<div id="plansPage" class="page">
+    <h2 style="color:#ff4500;">CHOOSE PLAN</h2>
+    <div class="rules-card">
+        <h3>BASIC - 🪙 1000</h3>
+        <p>Withdraw: 2nd Day. Fast Support.</p>
+        <button class="apply-btn" onclick="buyPlan('Basic', 1000)">BUY BASIC</button>
+        <span class="ss-warning">Send Screenshot after payment!</span>
+    </div>
+    <div class="rules-card" style="border-color:#ffcc00;">
+        <h3>PREMIUM - 🪙 5000</h3>
+        <p>Withdraw: Same Night. No Free Matches.</p>
+        <button class="apply-btn" style="background:#ffcc00; color:#000;" onclick="buyPlan('Premium', 5000)">BUY PREMIUM</button>
+        <span class="ss-warning">Send Screenshot after payment!</span>
+    </div>
+    <div class="rules-card" style="border-color:#00ff00;">
+        <h3>ULTRA - 🪙 10000</h3>
+        <p>Withdraw: Instant. Free Matches OK.</p>
+        <button class="apply-btn" style="background:#00ff00; color:#000;" onclick="buyPlan('Ultra', 10000)">BUY ULTRA</button>
+        <span class="ss-warning">Send Screenshot after payment!</span>
+    </div>
+</div>
+
+<div id="withdrawPage" class="page">
+    <div class="rules-card">
+        <h3 style="text-align:center; color:#ff4500;">WITHDRAWAL FORM</h3>
+        <select id="wdMethod"><option value="JazzCash">JazzCash</option><option value="EasyPaisa">EasyPaisa</option></select>
+        <input type="text" id="wdHolder" placeholder="Account Holder Name">
+        <input type="number" id="wdNumber" placeholder="Mobile Number">
+        <input type="number" id="wdAmount" placeholder="Amount of Coins">
+        <button class="apply-btn" onclick="submitWithdraw()">SUBMIT REQUEST</button>
+    </div>
+</div>
+
+<div id="depositPage" class="page">
+    <div class="rules-card">
+        <h3 style="text-align:center; color:#ffcc00;">RECHARGE COINS</h3>
+        <div style="background:#222; padding:10px; border-radius:8px; font-size:14px;">
+            💰 Rs 100 = 50 Coins<br>
+            💰 Rs 200 = 100 Coins<br>
+            💰 Rs 1000 = 500 Coins
+        </div>
+        <p class="ss-warning">Payment ke baad screenshot lazmi bhejein!</p>
+        <div style="display:flex; gap:10px; margin-top:20px;">
+            <button class="jazz-btn" onclick="window.location.href='tel:*786#'">JAZZCASH</button>
+            <button class="easy-btn" onclick="alert('EasyPaisa App Opening...')">EASYPAISA</button>
+        </div>
+    </div>
+</div>
+
+<div id="matchDetailsPage" class="page">
+    <div class="rules-card">
+        <h2 id="detMatchName" style="color:#ff4500; text-align:center;">Match Details</h2>
+        <div id="coinsLocked" class="hidden">
+            <p style="color:red; text-align:center;">⚠️ 100+ Coins required to see Room ID & Password.</p>
+            <button class="apply-btn" onclick="showPage('depositPage')">Recharge Now</button>
+        </div>
+        <div id="coinsUnlocked" class="hidden">
+            <p>🆔 Room ID: <b id="detRoomId" style="color:#00ff00;"></b></p>
+            <p>🔑 Password: <b id="detPass" style="color:#00ff00;"></b></p>
+            <button class="apply-btn" style="background:green;" onclick="showPage('joinMatchForm')">JOINED SUCCESSFULLY</button>
+        </div>
+    </div>
+</div>
+
+<div id="profile" class="page">
+    <div class="rules-card" style="text-align: center;">
+        <img id="userImg" src="https://cdn-icons-png.flaticon.com/512/149/149071.png" style="width:80px; height:80px; border-radius:50%; border:2px solid #ff4500; object-fit: cover;">
+        <input type="file" id="imgInput" style="display:none;" onchange="uploadProfileImg(this)">
+        <button onclick="document.getElementById('imgInput').click()" style="background:none; color:#ff4500; border:none; font-size:11px; cursor:pointer; display:block; margin:5px auto;">Change Photo 📷</button>
+        <h3 id="profNameDisplay">User</h3>
+        <p>Plan: <b id="profPlan" style="color:#00ff00;">Free</b></p>
+        <p>Balance: <b style="color:#ffcc00;">🪙 <span id="userBalance">0</span></b></p>
+        <button class="apply-btn" onclick="showPage('withdrawPage')">WITHDRAW NOW</button>
+    </div>
+</div>
+
+<div id="settingsPage" class="page"><div class="rules-card"><button class="apply-btn" onclick="showPage('inspectorPage')">🕵️ Become Inspector</button><button class="apply-btn" onclick="showPage('complaintPage')">📧 Send Complaint</button><button class="apply-btn" style="background:red;" onclick="logout()">LOGOUT</button></div></div>
+<div id="inspectorPage" class="page"><div class="rules-card"><h3>INSPECTOR</h3><input type="text" id="insName" placeholder="Name"><input type="text" id="insUid" placeholder="UID"><input type="number" id="insLevel" placeholder="Level"><button class="apply-btn" onclick="submitInspector()">SUBMIT</button></div></div>
+<div id="complaintPage" class="page"><div class="rules-card"><h3>COMPLAINT</h3><textarea id="compText" placeholder="Describe issue..."></textarea><button class="apply-btn" onclick="submitComplaint()">SEND</button></div></div>
+<div id="joinMatchForm" class="page"><div class="rules-card"><h3>JOINING FORM</h3><input type="text" id="jmName" placeholder="Game Name"><input type="text" id="jmUid" placeholder="Game UID"><input type="number" id="jmLevel" placeholder="Level"><button class="apply-btn" onclick="submitJoinMatch()">SUBMIT</button></div></div>
+<div id="login" class="page"><div class="rules-card"><h2>LOGIN</h2><input type="email" id="logE" placeholder="Email"><input type="password" id="logS" placeholder="Pass"><button class="apply-btn" onclick="loginUser()">LOGIN</button></div></div>
+<div id="register" class="page"><div class="rules-card"><h2>JOIN</h2><input type="text" id="regP" placeholder="Full Name"><input type="text" id="regU" placeholder="Game UID"><input type="email" id="regE" placeholder="Email"><input type="password" id="regS" placeholder="Pass"><button class="apply-btn" onclick="registerUser()">JOIN</button></div></div>
+<div id="withdrawRatesPage" class="page"><div class="rules-card"><h2>RATES</h2><p>100 COINS = 50 RS</p><button class="apply-btn" onclick="showPage('withdrawPage')">PROCEED</button></div></div>
+
+<script>
+const firebaseConfig = { apiKey: "AIzaSyArrJJlxbvMVUjnw19yvmp0Z0Y1uKUHDNo", databaseURL: "https://sahbattlegrounds-default-rtdb.firebaseio.com/" };
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+let currentUserCoins = 0;
+
+function showPage(p){ 
+    document.querySelectorAll(".page").forEach(pg => pg.classList.remove("active")); 
+    document.getElementById(p).classList.add("active");
+    document.getElementById("backArrow").style.display = (p === 'home') ? "none" : "block";
+}
+
+function openMatchDetails(name, roomId, pass) {
+    if(!localStorage.getItem("user")) return alert("Login First!");
+    document.getElementById('detMatchName').innerText = name;
+    document.getElementById('detRoomId').innerText = roomId || "---";
+    document.getElementById('detPass').innerText = pass || "---";
+    if(currentUserCoins >= 100) {
+        document.getElementById('coinsUnlocked').classList.remove('hidden');
+        document.getElementById('coinsLocked').classList.add('hidden');
+    } else {
+        document.getElementById('coinsLocked').classList.remove('hidden');
+        document.getElementById('coinsUnlocked').classList.add('hidden');
+    }
+    showPage('matchDetailsPage');
+}
+
+function checkUserStatus(){
+    let user = JSON.parse(localStorage.getItem("user"));
+    if(user){
+        document.getElementById("loginBtn").classList.add("hidden");
+        document.getElementById("regBtn").classList.add("hidden");
+        document.getElementById("profileBtn").classList.remove("hidden");
+        document.getElementById("homeWallet").classList.remove("hidden");
+        document.getElementById("setIco").classList.remove("hidden");
+        db.ref('allPlayers/'+user.u).on('value', s => {
+            let d = s.val(); if(d) {
+                currentUserCoins = d.points || 0;
+                document.getElementById("userCoinsHome").innerText = currentUserCoins;
+                document.getElementById("userBalance").innerText = currentUserCoins;
+                document.getElementById("profNameDisplay").innerText = d.p;
+                document.getElementById("profPlan").innerText = d.plan || "Free";
+                if(d.img) document.getElementById("userImg").src = d.img;
+            }
+        });
+    }
+}
+
+function uploadProfileImg(i){
+    let file = i.files[0];
+    let reader = new FileReader();
+    reader.onload = (e) => {
+        let user = JSON.parse(localStorage.getItem("user"));
+        db.ref('allPlayers/'+user.u+'/img').set(e.target.result).then(()=>alert("Photo Updated!"));
+    };
+    reader.readAsDataURL(file);
+}
+
+function submitWithdraw() {
+    let holder = document.getElementById('wdHolder').value;
+    let num = document.getElementById('wdNumber').value;
+    let amt = parseInt(document.getElementById('wdAmount').value);
+    let user = JSON.parse(localStorage.getItem("user"));
+    if(!holder || !num || !amt) return alert("Fill all fields!");
+    if(amt > currentUserCoins) return alert("Low Balance!");
+    db.ref('withdrawRequests').push({ uid: user.u, name: holder, num: num, amount: amt, status: 'pending' }).then(() => { alert("Sent!"); showPage('home'); });
+}
+
+function submitJoinMatch() {
+    let name = document.getElementById('jmName').value;
+    let uid = document.getElementById('jmUid').value;
+    let level = document.getElementById('jmLevel').value;
+    let user = JSON.parse(localStorage.getItem("user"));
+    db.ref('matchParticipants').push({ userUid: user.u, gameName: name, gameUid: uid, level: level, match: document.getElementById('detMatchName').innerText })
+    .then(() => { alert("Joined!"); showPage('home'); });
+}
+
+function buyPlan(plan, price) {
+    let user = JSON.parse(localStorage.getItem("user"));
+    if(currentUserCoins < price) return alert("Low Coins!");
+    db.ref('allPlayers/'+user.u).update({ points: currentUserCoins - price, plan: plan }).then(() => alert(plan + " Active!"));
+}
+
+function loginUser(){
+    let email = document.getElementById('logE').value, pass = document.getElementById('logS').value;
+    db.ref('allPlayers').once('value', snap => {
+        snap.forEach(child => {
+            let d = child.val();
+            if(d.e === email && d.s === pass){ localStorage.setItem("user", JSON.stringify(d)); location.reload(); }
+        });
+    });
+}
+
+function registerUser(){
+    let p = document.getElementById('regP').value, u = document.getElementById('regU').value, e = document.getElementById('regE').value, s = document.getElementById('regS').value;
+    db.ref('allPlayers/'+u).set({p, u, e, s, points:0, plan:"Free"}).then(()=> { localStorage.setItem("user", JSON.stringify({p,u,e,s})); location.reload(); });
+}
+
+function logout(){ localStorage.clear(); location.reload(); }
+window.onload = checkUserStatus;
+
+db.ref('liveMatches').on('value', snap => {
+    let html = "";
+    snap.forEach(c => {
+        let m = c.val();
+        html += `<div class="rules-card" style="padding:0; overflow:hidden;"><img src="${m.image}" style="width:100%;"><div style="padding:15px;"><h3>${m.name}</h3><button class="apply-btn" onclick="openMatchDetails('${m.name}', '${m.roomId}', '${m.password}')">JOIN MATCH</button></div></div>`;
+    });
+    document.getElementById("dynamicMatches").innerHTML = html || "No Matches.";
+});
+</script>
+</body>
+</html>
