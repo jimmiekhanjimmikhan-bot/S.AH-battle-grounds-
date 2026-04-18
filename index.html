@@ -6,255 +6,324 @@
     <title>S.AH BATTLE GROUNDS 🔥</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <script src="https://unpkg.com/tesseract.js@v2.1.4/dist/tesseract.min.js"></script>
+
     <style>
-        @keyframes fireMoving {
-            0% { border-color: #ff4500; box-shadow: 0 0 15px #ff4500; }
-            50% { border-color: #ffae00; box-shadow: 0 0 25px #ffae00; }
-            100% { border-color: #ff4500; box-shadow: 0 0 15px #ff4500; }
-        }
-        body { 
-            margin: 0; font-family: 'Segoe UI', sans-serif; background: #000; color: #fff; text-align: center; 
-            border: 5px solid #ff4500; animation: fireMoving 1.5s infinite ease-in-out;
-            min-height: 100vh; padding-bottom: 80px; box-sizing: border-box;
-        }
-        header { background: #000; border-bottom: 2px solid #ff4500; padding: 12px; position: sticky; top: 0; z-index: 1000; }
-        .header-top { display: flex; align-items: center; justify-content: center; position: relative; height: 40px; }
-        .back-btn { position: absolute; left: 0; background: none; border: none; color: #ff4500; font-size: 24px; cursor: pointer; display: none; font-weight: bold; }
-        .settings-btn { position: absolute; right: 0; background: none; border: none; color: white; font-size: 20px; cursor: pointer; }
-        h1 { color: #ff4500; text-shadow: 0 0 10px #ff4500; margin: 0; font-size: 18px; }
-        .menu { display: flex; justify-content: center; gap: 5px; flex-wrap: wrap; margin-top:8px; }
-        .menu button { background: transparent; color: #fff; border: 1.2px solid #ff4500; padding: 6px 10px; border-radius: 12px; font-size: 10px; font-weight: bold; cursor: pointer; }
-        .page { display: none; padding: 15px; width: 100%; box-sizing: border-box; }
+        :root { --accent: #ff4500; --bg: #000; --card-bg: #121212; --radius: 30px; }
+        body { margin: 0; font-family: -apple-system, sans-serif; background: var(--bg); color: #fff; text-align: center; min-height: 100vh; overflow-x: hidden; }
+        
+        .premium-box { background: var(--card-bg); border: 1px solid #222; border-radius: var(--radius); padding: 22px; margin-bottom: 20px; text-align: left; line-height: 1.7; font-size: 14px; color: #d1d1d1; }
+        header { background: rgba(0,0,0,0.8); backdrop-filter: blur(20px); border-bottom: 1px solid #222; padding: 18px; position: sticky; top: 0; z-index: 1000; display: none; align-items: center; justify-content: space-between; }
+        
+        .side-menu { height: 100%; width: 0; position: fixed; z-index: 10001; top: 0; left: 0; background: rgba(10,10,10,0.98); backdrop-filter: blur(25px); overflow-x: hidden; transition: 0.5s; border-radius: 0 var(--radius) var(--radius) 0; padding-top: 60px; }
+        .side-menu button { padding: 18px 25px; color: white; display: block; background: none; border: none; width: 90%; text-align: left; font-weight: 600; border-bottom: 1px solid #222; cursor: pointer; border-radius: 18px; margin: 8px auto; }
+
+        .apply-btn { background: var(--accent); color: white; border: none; padding: 16px; border-radius: var(--radius); width: 100%; font-weight: bold; cursor: pointer; font-size: 16px; box-shadow: 0 8px 25px rgba(255, 69, 0, 0.3); }
+        .back-arrow { position: absolute; top: 20px; left: 20px; font-size: 28px; color: var(--accent); cursor: pointer; z-index: 10; font-weight: bold; }
+
+        input, select, textarea { width: 92%; padding: 16px; margin: 12px auto; background: #1a1a1a; color: #fff; border: 1px solid #333; border-radius: 22px; display: block; outline: none; }
+        .page { display: none; padding: 25px; box-sizing: border-box; position: relative; }
         .active { display: block !important; }
-        .rules-card { background: #111; border: 1.2px solid #ff4500; padding: 15px; border-radius: 12px; text-align: left; max-width: 360px; margin: auto; margin-bottom: 15px; }
-        .apply-btn { background: #ff4500; color: white; border: none; padding: 10px; border-radius: 6px; width: 100%; font-weight: bold; cursor: pointer; margin-top: 8px; }
-        .jazz-btn { background: #cc0000; color: white; padding: 10px; border-radius: 6px; border: none; font-weight: bold; flex: 1; cursor: pointer; }
-        .easy-btn { background: #37a832; color: white; padding: 10px; border-radius: 6px; border: none; font-weight: bold; flex: 1; cursor: pointer; }
-        input, select, textarea { width: 90%; padding: 12px; margin-bottom: 12px; background: #000; color: #fff; border: 1px solid #333; border-radius: 6px; display: block; margin: 10px auto; }
-        .hidden { display: none !important; }
-        .home-wallet { background: #1a1a1a; padding: 10px; border-radius: 10px; margin: 10px auto; max-width: 360px; border: 1px solid #333; display: flex; justify-content: space-between; align-items: center; }
-        .ss-warning { color: #ffcc00; font-size: 11px; text-align: center; display: block; margin-top: 5px; font-weight: bold; }
+        
+        .dash-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 25px; }
+        .dash-card { background: var(--card-bg); border: 1px solid #222; padding: 20px; border-radius: var(--radius); font-weight: 800; cursor: pointer; font-size: 11px; }
+        
+        .match-img { width: 100%; height: 185px; object-fit: cover; border-radius: var(--radius); border: 1px solid #333; margin-bottom: 12px; display: block; }
+        .orange-text { color: var(--accent); font-weight: bold; }
+        .scroll-box { height: 350px; overflow-y: auto; padding-right: 8px; margin-bottom: 15px; }
+
+        /* Google circular button */
+        .google-btn { width: 50px; height: 50px; border-radius: 50%; background: white; border: none; margin: 20px auto; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 4px 10px rgba(255,255,255,0.1); }
+        .google-btn img { width: 25px; }
     </style>
+    <script src="https://unpkg.com/tesseract.js@v2.1.0/dist/tesseract.min.js"></script>
+
 </head>
 <body>
-
-<header>
-    <div class="header-top">
-        <button id="backArrow" class="back-btn" onclick="showPage('home')">←</button>
-        <h1>S.AH BATTLE GROUNDS 🔥</h1>
-        <button id="setIco" class="settings-btn hidden" onclick="showPage('settingsPage')">⚙️</button>
-    </div>
-    <div class="menu">
-        <button onclick="showPage('home')">🏠 HOME</button>
-        <button onclick="showPage('plansPage')">💎 PLANS</button>
-        <button onclick="showPage('withdrawRatesPage')">💰 WITHDRAW</button>
-        <button id="profileBtn" class="hidden" onclick="showPage('profile')">👤 PROFILE</button>
-        <button id="loginBtn" onclick="showPage('login')">🔑 LOGIN</button>
-        <button id="regBtn" onclick="showPage('register')">📝 JOIN</button>
-    </div>
-</header>
-
-<div id="home" class="page active">
-    <div id="homeWallet" class="home-wallet hidden">
-        <div><span style="color:#aaa; font-size:11px;">Coins:</span><br><b style="color:#ffcc00; font-size:18px;">🪙 <span id="userCoinsHome">0</span></b></div>
-        <button onclick="showPage('depositPage')" style="background:#ffcc00; color:#000; border:none; padding:8px 15px; border-radius:8px; font-weight:bold; font-size:11px;">+ RECHARGE</button>
-    </div>
-    <div id="dynamicMatches">Loading Matches...</div>
+<div id="bot-loader" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 10000; flex-direction: column; align-items: center; justify-content: center; font-family: sans-serif;">
+    <div style="width: 50px; height: 50px; border: 5px solid #333; border-top: 5px solid #ff4500; border-radius: 50%; animation: spin 1s linear infinite;"></div>
+    <p style="color:#ff4500; margin-top:20px; font-weight:bold; font-size:18px; text-transform: uppercase; letter-spacing: 2px;">Loading...</p>
+    <p style="color:#666; font-size:12px; margin-top:5px;">Scanning Screenshot & TRX ID</p>
+    <style> @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } } </style>
 </div>
 
-<div id="plansPage" class="page">
-    <h2 style="color:#ff4500;">CHOOSE PLAN</h2>
-    <div class="rules-card">
-        <h3>BASIC - 🪙 1000</h3>
-        <p>Withdraw: 2nd Day. Fast Support.</p>
-        <button class="apply-btn" onclick="buyPlan('Basic', 1000)">BUY BASIC</button>
-        <span class="ss-warning">Send Screenshot after payment!</span>
+<div id="welcome-screen" class="page active">
+    <h1 style="font-size: 38px; margin-top: 30px;">S.AH <span class="orange-text">ARENA</span></h1>
+    <div class="premium-box">
+        <h3 class="orange-text">⚠️ READ CAREFULLY</h3>
+        <div class="scroll-box">
+            <p>Welcome to S.AH Battle Grounds, established on March 19, 2026. This platform is designed for professional esports enthusiasts who value fair play and intense competition. Our mission is to provide a secure environment where your skills translate into real rewards. By entering this arena, you agree to our strict anti-cheat policy. Any use of GFX tools, scripts, or third-party modifications will result in a permanent ban of your UID and device ID. We monitor every match in real-time with dedicated spectators to ensure integrity. Financial security is our top priority; all deposits and withdrawals are processed through verified manual checks to prevent any fraudulent activity. We support JazzCash and EasyPaisa for seamless transactions within Pakistan. Remember, this is more than just a game—it's a digital battlefield for the elite. Respect your fellow warriors, follow the admin instructions, and climb the global leaderboard to prove your dominance. Failure to comply with the rules mentioned in the mission and contact sections will lead to immediate account suspension without prior notice. Success belongs to those who play fair and play hard. Our community is built on trust and skill. Every tournament hosted here has a specific set of rules regarding team formation and gameplay style. Ensure you read the match details before joining. Your journey towards becoming a legend starts now. Are you ready to claim your victory in the S.AH Arena? Proceed with honor and let the battles begin!</p>
+        </div>
     </div>
-    <div class="rules-card" style="border-color:#ffcc00;">
-        <h3>PREMIUM - 🪙 5000</h3>
-        <p>Withdraw: Same Night. No Free Matches.</p>
-        <button class="apply-btn" style="background:#ffcc00; color:#000;" onclick="buyPlan('Premium', 5000)">BUY PREMIUM</button>
-        <span class="ss-warning">Send Screenshot after payment!</span>
+    <button class="apply-btn" onclick="showAuth('login')">PROCEED TO LOGIN</button>
+    <p onclick="showAuth('register')" style="margin-top:15px; opacity:0.7; font-size:14px;">New here? <span class="orange-text">Create Account</span></p>
+</div>
+
+<header id="mainHeader">
+    <div style="font-size: 24px; cursor: pointer;" onclick="toggleMenu()">☰</div>
+    <div style="font-weight: 900;">S.AH ARENA</div>
+    <div id="headerBal" class="orange-text" style="font-size:12px;">Coins: 0</div>
+</header>
+
+<div id="sideMenu" class="side-menu">
+    <button onclick="showPage('dashboard')">🏠 Dashboard</button>
+    <button onclick="showPage('profilePage')">👤 My Profile</button>
+    <button onclick="showPage('leaderboardPage')">🏆 Leaderboard</button>
+    <button onclick="showPage('missionPage')">🎯 Missions</button>
+    <button onclick="showPage('inboxPage')">📩 Inbox</button>
+    <button onclick="showPage('depositPage')">➕ Deposit</button>
+    <button onclick="showPage('withdrawPage')">💸 Withdraw</button>
+    <button onclick="showPage('contactPage')">💬 Contact Us</button>
+    <button style="color: #ff4444;" onclick="logout()">🚪 Logout</button>
+</div>
+
+<div id="loginPage" class="page">
+    <h2 class="orange-text">Login</h2>
+    <input type="email" id="loginEmail" placeholder="Email">
+    <input type="password" id="loginPass" placeholder="Password">
+    <button class="apply-btn" onclick="handleLogin()">SIGN IN</button>
+    
+    <p style="margin-top: 20px; opacity: 0.6;">Or Login with</p>
+    <button class="google-btn" onclick="handleGoogleLogin()">
+        <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/action/google.svg" alt="G">
+    </button>
+
+    <p style="font-size: 14px; margin-top: 20px;">Don't have an account? <span class="orange-text" onclick="showAuth('register')">Register</span></p>
+</div>
+
+<div id="registerPage" class="page">
+    <h2 class="orange-text">Register</h2>
+    <input type="text" id="regUser" placeholder="Name">
+    <input type="text" id="regGame" placeholder="Game UID">
+    <input type="email" id="regEmail" placeholder="Email">
+    <input type="password" id="regPass" placeholder="Password">
+    <button class="apply-btn" onclick="handleRegister()">CREATE ACCOUNT</button>
+    <p style="font-size: 14px; margin-top: 20px;">Already have an account? <span class="orange-text" onclick="showAuth('login')">Login</span></p>
+</div>
+
+<div id="dashboard" class="page">
+    <div class="dash-grid">
+        <div class="dash-card" onclick="showPage('depositPage')">➕<br>DEPOSIT</div>
+        <div class="dash-card" onclick="showPage('withdrawPage')">💸<br>WITHDRAW</div>
+        <div class="dash-card" onclick="showPage('leaderboardPage')">🏆<br>LEADERS</div>
+        <div class="dash-card" onclick="showPage('missionPage')">🎯<br>MISSION</div>
+        <div class="dash-card" onclick="showPage('inboxPage')">📩<br>INBOX</div>
+        <div class="dash-card" onclick="showPage('profilePage')">👤<br>PROFILE</div>
     </div>
-    <div class="rules-card" style="border-color:#00ff00;">
-        <h3>ULTRA - 🪙 10000</h3>
-        <p>Withdraw: Instant. Free Matches OK.</p>
-        <button class="apply-btn" style="background:#00ff00; color:#000;" onclick="buyPlan('Ultra', 10000)">BUY ULTRA</button>
-        <span class="ss-warning">Send Screenshot after payment!</span>
+    <h2 style="text-align: left; font-size: 20px;">Live Tournaments</h2>
+    <div id="dynamicMatches">Loading matches...</div>
+</div>
+
+<div id="depositPage" class="page">
+    <span class="back-arrow" onclick="showPage('dashboard')">⬅</span>
+    <h2 class="orange-text" style="margin-top:50px;">Deposit Coins</h2>
+    <div class="premium-box">
+        <p>Send Amount to: <br><span class="orange-text">0300-XXXXXXX (Admin)</span></p>
+        <input type="number" id="depAmt" placeholder="Amount (PKR)">
+        <select id="depMethod">
+            <option value="EasyPaisa">EasyPaisa</option>
+            <option value="JazzCash">JazzCash</option>
+        </select>
+        <input type="text" id="depTrx" placeholder="Transaction ID (TRX)">
+        <label style="font-size:12px; margin-left:10px;">Upload Screenshot:</label>
+        <input type="file" id="depImg" accept="image/*">
+        <button class="apply-btn" onclick="handleDepositBot()" style="margin-top: 20px; width: 100%;">SUBMIT PROOF</button>
+
     </div>
 </div>
 
 <div id="withdrawPage" class="page">
-    <div class="rules-card">
-        <h3 style="text-align:center; color:#ff4500;">WITHDRAWAL FORM</h3>
-        <select id="wdMethod"><option value="JazzCash">JazzCash</option><option value="EasyPaisa">EasyPaisa</option></select>
-        <input type="text" id="wdHolder" placeholder="Account Holder Name">
-        <input type="number" id="wdNumber" placeholder="Mobile Number">
-        <input type="number" id="wdAmount" placeholder="Amount of Coins">
-        <button class="apply-btn" onclick="submitWithdraw()">SUBMIT REQUEST</button>
+    <span class="back-arrow" onclick="showPage('dashboard')">⬅</span>
+    <h2 class="orange-text" style="margin-top:50px;">Withdraw</h2>
+    <div class="premium-box">
+        <input type="number" id="wdAmt" placeholder="Coins to Withdraw">
+        <input type="text" id="wdName" placeholder="Account Name">
+        <input type="text" id="wdNum" placeholder="Account Number">
+        <select id="wdMethod">
+            <option value="EasyPaisa">EasyPaisa</option>
+            <option value="JazzCash">JazzCash</option>
+        </select>
+        <button class="apply-btn" onclick="alert('Withdrawal request sent!')">REQUEST CASH</button>
     </div>
 </div>
 
-<div id="depositPage" class="page">
-    <div class="rules-card">
-        <h3 style="text-align:center; color:#ffcc00;">RECHARGE COINS</h3>
-        <div style="background:#222; padding:10px; border-radius:8px; font-size:14px;">
-            💰 Rs 100 = 50 Coins<br>
-            💰 Rs 200 = 100 Coins<br>
-            💰 Rs 1000 = 500 Coins
+<div id="profilePage" class="page">
+    <span class="back-arrow" onclick="showPage('dashboard')">⬅</span>
+    <h2 class="orange-text" style="margin-top:50px;">My Profile</h2>
+    <div class="premium-box" style="text-align: center;">
+        <div style="width: 80px; height: 80px; background: #222; border-radius: 50%; margin: 0 auto 15px; border: 2px solid var(--accent); display: flex; align-items: center; justify-content: center; font-size: 30px;">👤</div>
+        <h3 id="pName" style="margin: 0;">---</h3>
+        <p id="pEmail" style="opacity: 0.6; font-size: 12px;">---</p>
+        <div style="display: flex; justify-content: space-around; margin-top: 25px; border-top: 1px solid #333; padding-top: 20px;">
+            <div><span class="orange-text" id="pGame">---</span><br><small>Game UID</small></div>
+            <div><span class="orange-text" id="pCoins">0</span><br><small>Total Coins</small></div>
         </div>
-        <p class="ss-warning">Payment ke baad screenshot lazmi bhejein!</p>
-        <div style="display:flex; gap:10px; margin-top:20px;">
-            <button class="jazz-btn" onclick="window.location.href='tel:*786#'">JAZZCASH</button>
-            <button class="easy-btn" onclick="alert('EasyPaisa App Opening...')">EASYPAISA</button>
-        </div>
+    </div>
+    <button class="apply-btn" style="background: #222;" onclick="logout()">LOGOUT</button>
+</div>
+
+<div id="contactPage" class="page">
+    <span class="back-arrow" onclick="showPage('dashboard')">⬅</span>
+    <h2 class="orange-text" style="margin-top:50px;">Support</h2>
+    <div class="premium-box">
+        <p>Aapka khush amdeed hai S.AH Arena Support Center mein. Hamari team aapke masail hal karne ke liye 24/7 maujud hai. Agar aapko balance deposit karne mein koi masla aa raha hai, ya withdrawal mein takheer ho rahi hai, toh neeche diye gaye box mein apni tafseelat likhein. Hamari policy ke mutabiq aap ek mahine (1 month) mein sirf 100 messages hi kar sakte hain taake system par bojh na paray aur har user ko barwaqt aur sahi jawab mil sake. Ghalat ya fazool messages karne se guraiz karein kyunke bar-bar ghalat report karne par aapka support access mehdood kiya ja sakta hai. Shukriya aapke taawun ka.</p>
+        <textarea placeholder="Write your issue..." rows="4"></textarea>
+        <button class="apply-btn">SEND MESSAGE</button>
     </div>
 </div>
 
-<div id="matchDetailsPage" class="page">
-    <div class="rules-card">
-        <h2 id="detMatchName" style="color:#ff4500; text-align:center;">Match Details</h2>
-        <div id="coinsLocked" class="hidden">
-            <p style="color:red; text-align:center;">⚠️ 100+ Coins required to see Room ID & Password.</p>
-            <button class="apply-btn" onclick="showPage('depositPage')">Recharge Now</button>
-        </div>
-        <div id="coinsUnlocked" class="hidden">
-            <p>🆔 Room ID: <b id="detRoomId" style="color:#00ff00;"></b></p>
-            <p>🔑 Password: <b id="detPass" style="color:#00ff00;"></b></p>
-            <button class="apply-btn" style="background:green;" onclick="showPage('joinMatchForm')">JOINED SUCCESSFULLY</button>
-        </div>
-    </div>
-</div>
-
-<div id="profile" class="page">
-    <div class="rules-card" style="text-align: center;">
-        <img id="userImg" src="https://cdn-icons-png.flaticon.com/512/149/149071.png" style="width:80px; height:80px; border-radius:50%; border:2px solid #ff4500; object-fit: cover;">
-        <input type="file" id="imgInput" style="display:none;" onchange="uploadProfileImg(this)">
-        <button onclick="document.getElementById('imgInput').click()" style="background:none; color:#ff4500; border:none; font-size:11px; cursor:pointer; display:block; margin:5px auto;">Change Photo 📷</button>
-        <h3 id="profNameDisplay">User</h3>
-        <p>Plan: <b id="profPlan" style="color:#00ff00;">Free</b></p>
-        <p>Balance: <b style="color:#ffcc00;">🪙 <span id="userBalance">0</span></b></p>
-        <button class="apply-btn" onclick="showPage('withdrawPage')">WITHDRAW NOW</button>
-    </div>
-</div>
-
-<div id="settingsPage" class="page"><div class="rules-card"><button class="apply-btn" onclick="showPage('inspectorPage')">🕵️ Become Inspector</button><button class="apply-btn" onclick="showPage('complaintPage')">📧 Send Complaint</button><button class="apply-btn" style="background:red;" onclick="logout()">LOGOUT</button></div></div>
-<div id="inspectorPage" class="page"><div class="rules-card"><h3>INSPECTOR</h3><input type="text" id="insName" placeholder="Name"><input type="text" id="insUid" placeholder="UID"><input type="number" id="insLevel" placeholder="Level"><button class="apply-btn" onclick="submitInspector()">SUBMIT</button></div></div>
-<div id="complaintPage" class="page"><div class="rules-card"><h3>COMPLAINT</h3><textarea id="compText" placeholder="Describe issue..."></textarea><button class="apply-btn" onclick="submitComplaint()">SEND</button></div></div>
-<div id="joinMatchForm" class="page"><div class="rules-card"><h3>JOINING FORM</h3><input type="text" id="jmName" placeholder="Game Name"><input type="text" id="jmUid" placeholder="Game UID"><input type="number" id="jmLevel" placeholder="Level"><button class="apply-btn" onclick="submitJoinMatch()">SUBMIT</button></div></div>
-<div id="login" class="page"><div class="rules-card"><h2>LOGIN</h2><input type="email" id="logE" placeholder="Email"><input type="password" id="logS" placeholder="Pass"><button class="apply-btn" onclick="loginUser()">LOGIN</button></div></div>
-<div id="register" class="page"><div class="rules-card"><h2>JOIN</h2><input type="text" id="regP" placeholder="Full Name"><input type="text" id="regU" placeholder="Game UID"><input type="email" id="regE" placeholder="Email"><input type="password" id="regS" placeholder="Pass"><button class="apply-btn" onclick="registerUser()">JOIN</button></div></div>
-<div id="withdrawRatesPage" class="page"><div class="rules-card"><h2>RATES</h2><p>100 COINS = 50 RS</p><button class="apply-btn" onclick="showPage('withdrawPage')">PROCEED</button></div></div>
+<div id="leaderboardPage" class="page"><span class="back-arrow" onclick="showPage('dashboard')">⬅</span><h2 class="orange-text" style="margin-top:50px;">Leaderboard</h2><div class="premium-box">Ranking coming soon...</div></div>
+<div id="missionPage" class="page"><span class="back-arrow" onclick="showPage('dashboard')">⬅</span><h2 class="orange-text" style="margin-top:50px;">Missions</h2><div class="premium-box">Complete matches to earn bonus!</div></div>
+<div id="inboxPage" class="page"><span class="back-arrow" onclick="showPage('dashboard')">⬅</span><h2 class="orange-text" style="margin-top:50px;">Inbox</h2><div class="premium-box">No new notifications.</div></div>
 
 <script>
 const firebaseConfig = { apiKey: "AIzaSyArrJJlxbvMVUjnw19yvmp0Z0Y1uKUHDNo", databaseURL: "https://sahbattlegrounds-default-rtdb.firebaseio.com/" };
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
-let currentUserCoins = 0;
+const auth = firebase.auth();
 
-function showPage(p){ 
-    document.querySelectorAll(".page").forEach(pg => pg.classList.remove("active")); 
-    document.getElementById(p).classList.add("active");
-    document.getElementById("backArrow").style.display = (p === 'home') ? "none" : "block";
-}
+function showPage(p) { document.querySelectorAll('.page').forEach(pg=>pg.classList.remove('active')); document.getElementById(p).classList.add('active'); document.getElementById('sideMenu').style.width='0'; }
+function showAuth(t) { document.querySelectorAll('.page').forEach(p=>p.classList.remove('active')); document.getElementById(t+'Page').classList.add('active'); }
+function toggleMenu() { let m=document.getElementById('sideMenu'); m.style.width=m.style.width==='250px'?'0':'250px'; }
 
-function openMatchDetails(name, roomId, pass) {
-    if(!localStorage.getItem("user")) return alert("Login First!");
-    document.getElementById('detMatchName').innerText = name;
-    document.getElementById('detRoomId').innerText = roomId || "---";
-    document.getElementById('detPass').innerText = pass || "---";
-    if(currentUserCoins >= 100) {
-        document.getElementById('coinsUnlocked').classList.remove('hidden');
-        document.getElementById('coinsLocked').classList.add('hidden');
-    } else {
-        document.getElementById('coinsLocked').classList.remove('hidden');
-        document.getElementById('coinsUnlocked').classList.add('hidden');
-    }
-    showPage('matchDetailsPage');
-}
-
-function checkUserStatus(){
-    let user = JSON.parse(localStorage.getItem("user"));
-    if(user){
-        document.getElementById("loginBtn").classList.add("hidden");
-        document.getElementById("regBtn").classList.add("hidden");
-        document.getElementById("profileBtn").classList.remove("hidden");
-        document.getElementById("homeWallet").classList.remove("hidden");
-        document.getElementById("setIco").classList.remove("hidden");
-        db.ref('allPlayers/'+user.u).on('value', s => {
-            let d = s.val(); if(d) {
-                currentUserCoins = d.points || 0;
-                document.getElementById("userCoinsHome").innerText = currentUserCoins;
-                document.getElementById("userBalance").innerText = currentUserCoins;
-                document.getElementById("profNameDisplay").innerText = d.p;
-                document.getElementById("profPlan").innerText = d.plan || "Free";
-                if(d.img) document.getElementById("userImg").src = d.img;
+// GOOGLE LOGIN
+function handleGoogleLogin() {
+    var provider = new firebase.auth.GoogleAuthProvider();
+    auth.signInWithPopup(provider).then((result) => {
+        let user = result.user;
+        db.ref('allPlayers/' + user.uid).once('value').then(snap => {
+            if(!snap.exists()) {
+                db.ref('allPlayers/' + user.uid).set({p: user.displayName, e: user.email, u: user.uid, bal: 0});
             }
+            location.reload();
         });
-    }
+    }).catch((error) => alert(error.message));
 }
 
-function uploadProfileImg(i){
-    let file = i.files[0];
-    let reader = new FileReader();
-    reader.onload = (e) => {
-        let user = JSON.parse(localStorage.getItem("user"));
-        db.ref('allPlayers/'+user.u+'/img').set(e.target.result).then(()=>alert("Photo Updated!"));
-    };
-    reader.readAsDataURL(file);
-}
-
-function submitWithdraw() {
-    let holder = document.getElementById('wdHolder').value;
-    let num = document.getElementById('wdNumber').value;
-    let amt = parseInt(document.getElementById('wdAmount').value);
-    let user = JSON.parse(localStorage.getItem("user"));
-    if(!holder || !num || !amt) return alert("Fill all fields!");
-    if(amt > currentUserCoins) return alert("Low Balance!");
-    db.ref('withdrawRequests').push({ uid: user.u, name: holder, num: num, amount: amt, status: 'pending' }).then(() => { alert("Sent!"); showPage('home'); });
-}
-
-function submitJoinMatch() {
-    let name = document.getElementById('jmName').value;
-    let uid = document.getElementById('jmUid').value;
-    let level = document.getElementById('jmLevel').value;
-    let user = JSON.parse(localStorage.getItem("user"));
-    db.ref('matchParticipants').push({ userUid: user.u, gameName: name, gameUid: uid, level: level, match: document.getElementById('detMatchName').innerText })
-    .then(() => { alert("Joined!"); showPage('home'); });
-}
-
-function buyPlan(plan, price) {
-    let user = JSON.parse(localStorage.getItem("user"));
-    if(currentUserCoins < price) return alert("Low Coins!");
-    db.ref('allPlayers/'+user.u).update({ points: currentUserCoins - price, plan: plan }).then(() => alert(plan + " Active!"));
-}
-
-function loginUser(){
-    let email = document.getElementById('logE').value, pass = document.getElementById('logS').value;
-    db.ref('allPlayers').once('value', snap => {
-        snap.forEach(child => {
-            let d = child.val();
-            if(d.e === email && d.s === pass){ localStorage.setItem("user", JSON.stringify(d)); location.reload(); }
-        });
-    });
-}
-
-function registerUser(){
-    let p = document.getElementById('regP').value, u = document.getElementById('regU').value, e = document.getElementById('regE').value, s = document.getElementById('regS').value;
-    db.ref('allPlayers/'+u).set({p, u, e, s, points:0, plan:"Free"}).then(()=> { localStorage.setItem("user", JSON.stringify({p,u,e,s})); location.reload(); });
-}
-
-function logout(){ localStorage.clear(); location.reload(); }
-window.onload = checkUserStatus;
-
+// TOURNAMENT FETCH
 db.ref('liveMatches').on('value', snap => {
     let html = "";
-    snap.forEach(c => {
-        let m = c.val();
-        html += `<div class="rules-card" style="padding:0; overflow:hidden;"><img src="${m.image}" style="width:100%;"><div style="padding:15px;"><h3>${m.name}</h3><button class="apply-btn" onclick="openMatchDetails('${m.name}', '${m.roomId}', '${m.password}')">JOIN MATCH</button></div></div>`;
-    });
-    document.getElementById("dynamicMatches").innerHTML = html || "No Matches.";
+    if(snap.exists()){
+        snap.forEach(c => {
+            let m = c.val();
+            let img = m.img || 'https://via.placeholder.com/400x200/333/ff4500?text=S.AH+ARENA';
+            html += `
+            <div class="premium-box">
+                <img src="${img}" class="match-img" onerror="this.src='https://via.placeholder.com/400x200/333/ff4500?text=S.AH+ARENA'">
+                
+                <h3 class="orange-text" style="margin:5px 0;">${m.name}</h3>
+                <p>Fee: ${m.fee} | Prize: ${m.prize}</p>
+                <button class="apply-btn" style="padding:10px;">JOIN ARENA</button>
+            </div>`;
+        });
+    } else { html = "<p>No matches active right now.</p>"; }
+    document.getElementById('dynamicMatches').innerHTML = html;
 });
+
+auth.onAuthStateChanged(user => {
+    if(user){
+        document.getElementById('welcome-screen').style.display='none';
+        document.getElementById('mainHeader').style.display='flex';
+        showPage('dashboard');
+        db.ref('allPlayers/'+user.uid).on('value', s => {
+            let d = s.val();
+            document.getElementById('pName').innerText = d.p;
+            document.getElementById('pGame').innerText = d.g || '---';
+            document.getElementById('pEmail').innerText = d.e;
+            document.getElementById('pCoins').innerText = d.bal || 0;
+            document.getElementById('headerBal').innerText = 'Coins: ' + (d.bal || 0);
+        });
+    }
+});
+
+function handleLogin() {
+    let e=document.getElementById('loginEmail').value, p=document.getElementById('loginPass').value;
+    auth.signInWithEmailAndPassword(e,p).then(()=>location.reload()).catch(err=>alert(err.message));
+}
+function handleRegister() {
+    let n=document.getElementById('regUser').value, g=document.getElementById('regGame').value, e=document.getElementById('regEmail').value, p=document.getElementById('regPass').value;
+    auth.createUserWithEmailAndPassword(e,p).then(res=>{
+        db.ref('allPlayers/'+res.user.uid).set({p:n, g:g, e:e, u:res.user.uid, bal:0}).then(()=>location.reload());
+    }).catch(err=>alert(err.message));
+}
+function logout() { auth.signOut().then(()=>location.reload()); }
+async function handleDepositBot() {
+    const fileInput = document.getElementById('depImg');
+    const amountInput = document.getElementById('depAmt').value;
+    const trxID = document.getElementById('depTrx').value;
+    const loader = document.getElementById('bot-loader');
+    const user = firebase.auth().currentUser;
+
+    if (!fileInput.files[0] || !amountInput || !trxID) {
+        alert("Bhai, Details aur Screenshot lazmi hain!");
+        return;
+    }
+
+    // Loader dikhao
+    loader.style.display = 'flex';
+
+    try {
+        // STEP 1: TRX ID Check (Pehle history check karein)
+        const botSnap = await db.ref('botHistory').orderByChild('trx').equalTo(trxID).once('value');
+        if (botSnap.exists()) {
+            loader.style.display = 'none';
+            alert("❌ FAKE SS: Ye TRX ID pehle hi use ho chuki hai!");
+            return;
+        }
+
+        // STEP 2: Scanning Logic
+        const image = fileInput.files[0];
+        // Tesseract ko call karne ka fast tareeka
+        const { data: { text } } = await Tesseract.recognize(image, 'eng');
+        const scannedText = text.toUpperCase();
+
+        // STEP 3: Verification (Name & Number Check)
+        const isVerified = scannedText.includes("MUHAMMAD IQBAL") && scannedText.includes("03017391349");
+
+        if (isVerified) {
+            // STEP 4: COIN CALCULATION (1 Coin = 2 Rupees)
+            const pkrAmount = parseFloat(amountInput);
+            const coinsToAdd = Math.floor(pkrAmount / 2); // 2 se divide kiya coins ke liye
+
+            await db.ref('allPlayers/' + user.uid + '/bal').transaction(c => (c || 0) + coinsToAdd);
+            
+            await db.ref('botHistory').push({
+                trx: trxID,
+                uid: user.uid,
+                amountPKR: pkrAmount,
+                coins: coinsToAdd,
+                time: new Date().toLocaleString()
+            });
+
+            loader.style.display = 'none';
+            alert("✅ BOT SUCCESS: " + coinsToAdd + " Coins added to your wallet!");
+            showPage('dashboard');
+
+        } else {
+            // Agar scan sahi nahi hua to Admin ko bhej do (Taake user wait na kare)
+            const reader = new FileReader();
+            reader.readAsDataURL(image);
+            reader.onload = async (e) => {
+                await db.ref('adminPayments').push({
+                    playerName: user.displayName || "User",
+                    playerUID: user.uid,
+                    amount: amountInput,
+                    trx: trxID,
+                    screenshot: e.target.result,
+                    time: new Date().toLocaleString()
+                });
+                loader.style.display = 'none';
+                alert("⏳ BOT: Screenshot clear nahi hai. Admin 10 min mein verify kar dega.");
+                showPage('dashboard');
+            };
+        }
+    } catch (err) {
+        loader.style.display = 'none';
+        console.error(err);
+        alert("Bot Error! Please try again or contact support.");
+    }
+}
 </script>
 </body>
 </html>
